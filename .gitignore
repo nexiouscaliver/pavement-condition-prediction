@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# AI logs
+notebooks/catboost_info/
+
 # Distribution / packaging
 .Python
 build/
