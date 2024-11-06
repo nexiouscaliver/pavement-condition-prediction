@@ -1,0 +1,3 @@
+tensorflow - 3. Sequential (3L-relu) with droupout(0.3) with earlystopping(pat=10) with Adam(!)[128,64,32]
+adv. tensorflow - dnn is better then (3.model)
+sklearn - catboost
