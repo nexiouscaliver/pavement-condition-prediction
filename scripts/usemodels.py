@@ -198,19 +198,19 @@ def generate_prediction_json(input_list):
     image_base64 = encode_base64_image(image_path)
     return {
         'predictions': {
-            'catboost': str(ans[0])[1:-1],
-            'dnn': ans[1],
-            'lgbm': str(ans[2])[1:-1],
-            'xgb': str(ans[3])[1:-1],
-            'tf1': ans[4],
-            'tf2': ans[5],
-            'tf3': ans[6],
-            'tf4': ans[7],
-            'rf': str(ans[8])[1:-1],
-            'stacking': str(ans[9])[1:-1],
-            'gb': str(ans[10])[1:-1]
+            'catboost': str(str(ans[0])[1:-1]),
+            'dnn': str(ans[1]),
+            'lgbm': str(str(ans[2])[1:-1]),
+            'xgb': str(str(ans[3])[1:-1]),
+            'tf1': str(ans[4]),
+            'tf2': str(ans[5]),
+            'tf3': str(ans[6]),
+            'tf4': str(ans[7]),
+            'rf': str(str(ans[8])[1:-1]),
+            'stacking': str(str(ans[9])[1:-1]),
+            'gb': str(str(ans[10])[1:-1])
         },
-        'image_base64': image_base64
+        'image_base64': (image_base64)
     }
 
 
