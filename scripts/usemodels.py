@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 import joblib
 import xgboost as xgb
+import base64
 
 #Rutting (mm),Fatigue_Cracking (m²),Block_Cracking (m²),Longitudinal_Cracking (m²),Transverse_Cracking (m²),Patching (m²),Potholes (Number),Delamination (m²),Severity_Rating,Traffic_Volume (vehicles/day),Temperature_C,Precipitation_mm,Maintenance_History
 orignaldb = pd.read_csv(r'../datasets/htrain.csv')   
@@ -155,32 +156,47 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
 
     return pred_catboost[0], pred_dnn[0][0], pred_lgbm[0], pred_xgb[0], pred_tf_1[0][0], pred_tf_2[0][0], pred_tf_3[0][0], pred_tf_4[0][0]
 
+def plot_predictions(ans):
+    # Plot the predictions
+    models = ['Catboost', 'DNN', 'LGBM', 'XGB', 'TF1', 'TF2', 'TF3', 'TF4']
+    predictions = [ans[0][0], ans[1], ans[2][0], ans[3][0], ans[4], ans[5], ans[6], ans[7]]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(models, predictions, marker='o', label='Predictions')
+    # plt.axhline(y=actual_value, color='r', linestyle='--', label='Actual Value')
+    plt.xlabel('Models')
+    plt.ylabel('PCI (%)')
+    plt.title('Model Predictions vs Actual Value')
+    plt.legend()
+    plt.grid(True)
+    # plt.show()
+    plt.savefig(r'../model_predictions_temp.png', dpi=400, bbox_inches='tight')
+    return r'../model_predictions_temp.png'
+
+def encode_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        my_string = base64.b64encode(img_file.read())
+    return my_string
+
+def generate_prediction_json(input_list):
+    ans = predict_all_models(*input_list)
+    image_path = plot_predictions(ans)
+    image_base64 = encode_base64_image(image_path)
+    return {
+        'predictions': {
+            'catboost': str(ans[0])[1:-1],
+            'dnn': ans[1],
+            'lgbm': str(ans[2])[1:-1],
+            'xgb': str(ans[3])[1:-1],
+            'tf1': ans[4],
+            'tf2': ans[5],
+            'tf3': ans[6],
+            'tf4': ans[7]
+        },
+        'image_base64': image_base64
+    }
+
+
 # test data
 
-ans = predict_all_models(3.9, 1.7, 0.3, 18.2, 3.5, 50.0, 6, 13.5, 'Low', 8200, 10.1, 102.0, 'Major repairs')
-print('FINAL PREDICTIONS :')
-print('Catboost:', ans[0])
-print('DNN:', ans[1])
-print('LGBM:', ans[2])
-print('XGB:', ans[3])
-print('TF1:', ans[4])
-print('TF2:', ans[5])
-print('TF3:', ans[6])
-print('TF4:', ans[7])
-print('Actual:', 39.0)
-
-#make a plot
-# Plot the predictions
-models = ['Catboost', 'DNN', 'LGBM', 'XGB', 'TF1', 'TF2', 'TF3', 'TF4']
-predictions = [ans[0][0], ans[1], ans[2][0], ans[3][0], ans[4], ans[5], ans[6], ans[7]]
-actual_value = 39.0
-
-plt.figure(figsize=(10, 6))
-plt.plot(models, predictions, marker='o', label='Predictions')
-plt.axhline(y=actual_value, color='r', linestyle='--', label='Actual Value')
-plt.xlabel('Models')
-plt.ylabel('PCI (%)')
-plt.title('Model Predictions vs Actual Value')
-plt.legend()
-plt.grid(True)
-plt.show()
+#print(generate_prediction_json([3.9, 1.7, 0.3, 18.2, 3.5, 50.0, 6, 13.5, 'Low', 8200, 10.1, 102.0, 'Major repairs']))
