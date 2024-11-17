@@ -11,7 +11,6 @@ import joblib
 import xgboost as xgb
 
 #Rutting (mm),Fatigue_Cracking (m²),Block_Cracking (m²),Longitudinal_Cracking (m²),Transverse_Cracking (m²),Patching (m²),Potholes (Number),Delamination (m²),Severity_Rating,Traffic_Volume (vehicles/day),Temperature_C,Precipitation_mm,Maintenance_History
-
 orignaldb = pd.read_csv(r'../datasets/htrain.csv')   
 orignaly = pd.read_csv(r'../datasets/hy_train.csv')   
 
@@ -19,15 +18,35 @@ rmax = orignaldb.max()
 rmin = orignaldb.min()
 
 range_data = pd.DataFrame([rmax, rmin])
-ogdf = pd.read_csv(r'../datasets/pci_data_50.csv')
-ogy = ogdf['PCI (%)']
-ogdf = ogdf.drop(columns=['PCI (%)']) 
+
+# ogdf = pd.read_csv(r'../datasets/pci_data_50.csv')
+# ogy = ogdf['PCI (%)']
+# ogdf = ogdf.drop(columns=['PCI (%)']) 
 # rmax = ogdf.max()
 # rmin = ogdf.min()
 # range_data = pd.DataFrame([rmax, rmin])
-ymax = ogy.max()
-ymin = ogy.min()
+
+# ymax = ogy.max()
+# ymin = ogy.min()
+# yrange = pd.DataFrame([ymax, ymin])
+
+df = pd.read_csv(r'../datasets/pci_data_50.csv')
+y = df['PCI (%)']
+df = df.drop(columns=['PCI (%)'])
+label_encoder = LabelEncoder()
+label_encoder.fit(["Low", "Medium", "High"])
+df['Severity_Rating'] = label_encoder.fit_transform(df['Severity_Rating'])
+label_encoder2 = LabelEncoder()
+label_encoder2.fit(["None", "Minor repairs", "Major repairs"])
+df['Maintenance_History'] = label_encoder2.fit_transform(df['Maintenance_History'])
+
+rmin1 = df.min()
+rmax1 = df.max()
+ymax = y.max()
+ymin = y.min()
 yrange = pd.DataFrame([ymax, ymin])
+range_data2 = pd.DataFrame([rmax1, rmin1])
+
 
 def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_Cracking ,Transverse_Cracking ,Patching ,Potholes ,Delamination ,Severity_Rating,Traffic_Volume ,Temperature_C,Precipitation_mm,Maintenance_History):
     # Load the data
@@ -82,7 +101,7 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
                     'Traffic_Volume (vehicles/day)', 'Temperature_C', 'Precipitation_mm','Severity_Rating','Maintenance_History']
 
     # print(range_data[numeric_columns])
-    scaler.fit(range_data[numeric_columns])
+    scaler.fit(range_data2[numeric_columns])
 
     # print(scaler.transform(input_df[numeric_columns]))
     input_df[numeric_columns] = scaler.transform(input_df[numeric_columns])
@@ -90,7 +109,7 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
     #remove header
     # input_df_headless = input_df.values
     input_df_headless = input_df.values
-    print('input_df_headless = ',input_df_headless)
+    # print('input_df_headless = ',input_df_headless)
 
     # Predict using the models
     pred_catboost = model_catboost.predict(input_df)
