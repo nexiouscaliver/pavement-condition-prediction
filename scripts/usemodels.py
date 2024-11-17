@@ -6,7 +6,7 @@ from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model #type: ignore
 import joblib
 import xgboost as xgb
 import base64
@@ -210,7 +210,7 @@ def generate_prediction_json(input_list):
             'stacking': str(str(ans[9])[1:-1]),
             'gb': str(str(ans[10])[1:-1])
         },
-        'image_base64': (image_base64)
+        'image_base64': (image_base64).decode('utf-8')
     }
 
 
