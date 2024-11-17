@@ -86,6 +86,12 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
 
     model_tf_4 = load_model(r"../models/trialmodels/model4.keras")
 
+    rf_model = joblib.load(r'../models/trialmodels/random_forest_model.pkl')
+
+    stacking_regressor = joblib.load(r'../models/trialmodels/stacking_regressor_model.pkl')
+
+    gb_model_loaded = joblib.load(r'../models/trialmodels/gradient_boosting_model.pkl')
+
     # preprocess the input
 
     label_encoder = LabelEncoder()
@@ -121,6 +127,9 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
     pred_tf_2 = model_tf_2.predict(input_df_headless)
     pred_tf_3 = model_tf_3.predict(input_df_headless)
     pred_tf_4 = model_tf_4.predict(input_df_headless)
+    pred_rf = rf_model.predict(input_df)
+    pred_stacking = stacking_regressor.predict(input_df)
+    pred_gb = gb_model_loaded.predict(input_df)
 
     print('Catboost:', pred_catboost)
     print('DNN:', pred_dnn)
@@ -130,7 +139,9 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
     print('TF2:', pred_tf_2)
     print('TF3:', pred_tf_3)
     print('TF4:', pred_tf_4)
-
+    print('RF:', pred_rf)
+    print('Stacking:', pred_stacking)
+    print('GB:', pred_gb)
 
     # pred_catboost = pred_catboost * (ymax - ymin) + ymin
     # pred_dnn = pred_dnn * (ymax - ymin) + ymin
@@ -152,14 +163,17 @@ def predict_all_models(Rutting ,Fatigue_Cracking ,Block_Cracking ,Longitudinal_C
     pred_tf_2 = scaler2.inverse_transform(pred_tf_2)
     pred_tf_3 = scaler2.inverse_transform(pred_tf_3)
     pred_tf_4 = scaler2.inverse_transform(pred_tf_4)
+    pred_rf = scaler2.inverse_transform([pred_rf])
+    pred_stacking = scaler2.inverse_transform([pred_stacking])
+    pred_gb = scaler2.inverse_transform([pred_gb])
 
 
-    return pred_catboost[0], pred_dnn[0][0], pred_lgbm[0], pred_xgb[0], pred_tf_1[0][0], pred_tf_2[0][0], pred_tf_3[0][0], pred_tf_4[0][0]
+    return pred_catboost[0], pred_dnn[0][0], pred_lgbm[0], pred_xgb[0], pred_tf_1[0][0], pred_tf_2[0][0], pred_tf_3[0][0], pred_tf_4[0][0], pred_rf[0], pred_stacking[0], pred_gb[0]
 
 def plot_predictions(ans):
     # Plot the predictions
-    models = ['Catboost', 'DNN', 'LGBM', 'XGB', 'TF1', 'TF2', 'TF3', 'TF4']
-    predictions = [ans[0][0], ans[1], ans[2][0], ans[3][0], ans[4], ans[5], ans[6], ans[7]]
+    models = ['Catboost', 'DNN', 'LGBM', 'XGB', 'TF1', 'TF2', 'TF3', 'TF4', 'RF', 'Stacking', 'GB']
+    predictions = [ans[0][0], ans[1], ans[2][0], ans[3][0], ans[4], ans[5], ans[6], ans[7], ans[8][0], ans[9][0], ans[10][0]]
 
     plt.figure(figsize=(10, 6))
     plt.plot(models, predictions, marker='o', label='Predictions')
@@ -191,7 +205,10 @@ def generate_prediction_json(input_list):
             'tf1': ans[4],
             'tf2': ans[5],
             'tf3': ans[6],
-            'tf4': ans[7]
+            'tf4': ans[7],
+            'rf': str(ans[8])[1:-1],
+            'stacking': str(ans[9])[1:-1],
+            'gb': str(ans[10])[1:-1]
         },
         'image_base64': image_base64
     }
