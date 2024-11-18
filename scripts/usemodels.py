@@ -216,4 +216,5 @@ def generate_prediction_json(input_list):
 
 # test data
 
-#print(generate_prediction_json([3.9, 1.7, 0.3, 18.2, 3.5, 50.0, 6, 13.5, 'Low', 8200, 10.1, 102.0, 'Major repairs']))
+#print()
+generate_prediction_json([3.9, 1.7, 0.3, 18.2, 3.5, 50.0, 6, 13.5, 'Low', 8200, 10.1, 102.0, 'Major repairs'])
